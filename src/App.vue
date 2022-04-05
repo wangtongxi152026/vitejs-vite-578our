@@ -1,13 +1,10 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Hello" />
-  <h1>iii1iii1</h1>
   <ABC />
 </template>
 
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue';
 import ABC from './components/ABC';
+
 </script>
 
 <style>
