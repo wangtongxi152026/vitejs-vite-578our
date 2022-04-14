@@ -1,6 +1,6 @@
 import { reactive, ref, defineComponent, onMounted } from "vue";
 import styles from "./a.module.css";
-import { getDetail, 获取资金面 } from "../api";
+import { getDetail, getMaster, 获取资金面 } from "../api";
 import { Item, GUpiaoItem } from "../types";
 import { bubbleSort, getData, quchong } from "../utils";
 export default defineComponent({
@@ -64,12 +64,12 @@ export default defineComponent({
 
       {
         title: "特点",
-        width: "150",
+        width: "180",
         slotName: "tags",
       },
       {
         title: "参数",
-        dataIndex: "query",
+        slotName: "query",
       },
       {
         title: "描述",
@@ -154,7 +154,7 @@ export default defineComponent({
     };
     const onChange = async (v: string) => {
       radio.value = v;
-      let result = await 获取资金面(v);
+      let result = v === "大师" ? await getMaster() : await 获取资金面(v);
       tableData.list = getData(result);
     };
     const selectValueChange = async (array: string[]) => {
@@ -259,6 +259,16 @@ export default defineComponent({
         slotName: "type",
       },
     ];
+    const renderquery = ({ record }: { record: Item }) => {
+      return (
+        <a-popover
+          v-slots={{
+            default: () => <a-button>Hover Me</a-button>,
+            content: () => <div class={styles.query}>{record?.query}</div>,
+          }}
+        ></a-popover>
+      );
+    };
     return () => {
       return (
         <>
@@ -281,29 +291,13 @@ export default defineComponent({
                 <a-radio value="技术面">技术面</a-radio>
                 <a-radio value="消息面">消息面</a-radio>
                 <a-radio value="基本面">基本面</a-radio>
+                <a-radio value="大师">大师</a-radio>
               </a-radio-group>
-
-              {/* <a-popover position="lb">
-              <a-button
-                class="button"
-                v-slots={{
-                  content: (
-                    <>
-                      <p>Here is the text content</p>
-                      <p>Here is the text content</p>
-                    </>
-                  ),
-                }}
-                style={{ position: "absolute", top: "180px", left: "10px" }}
-              >
-                LB
-              </a-button>
-            </a-popover> */}
               <div>
                 <div>
                   <a-button onClick={handleClick}>查看选中股票</a-button>
                 </div>
-                <a-typography-paragraph copyable>Click the icon to copy this text.</a-typography-paragraph>
+
                 <a-select
                   onChange={selectValueChange}
                   value={selectValue}
@@ -316,13 +310,13 @@ export default defineComponent({
                   <a-option>技术面</a-option>
                   <a-option>消息面</a-option>
                   <a-option>基本面</a-option>
+                  <a-option>大师</a-option>
                 </a-select>
               </div>
             </div>
 
             <div class={styles.tableBox}>
               <a-table
-                virtual-list-props={{ height: 1500 }}
                 stripe
                 loading={tableData.loading}
                 columns={columns}
@@ -337,6 +331,7 @@ export default defineComponent({
                     renderAnnualizedYield({ record }, "annualizedYield"),
                   profitAndList: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, "profitAndList"),
                   drawnDown: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, "drawnDown"),
+                  query: ({ record }: { record: Item }) => renderquery({ record }),
                 }}
                 onSorterChange={sorterchange}
                 onSelectionChange={selectionChange}

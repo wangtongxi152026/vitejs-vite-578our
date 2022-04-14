@@ -97,3 +97,4 @@ export const quchong = (arr: any) => {
 
   return hash;
 };
+export const methodstypes = ["资金面", "技术面", "消息面", "基本面", "大师策略"];

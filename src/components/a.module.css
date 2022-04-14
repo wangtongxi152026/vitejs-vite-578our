@@ -17,3 +17,18 @@
   height: 100vh;
   overflow: hidden;
 }
+.query {
+  width: 500px;
+  max-width: 400px;
+}
+.box1 {
+  /* 设置一个盒子 */
+  width: 150px;
+  cursor: pointer;
+  /* 文字过多换行显示，现在强行让文字在一行显示 */
+  white-space: nowrap;
+  /* 然后然溢出的部分文字隐藏 */
+  overflow: hidden;
+  /* 文字溢出显示用省略号。  */
+  text-overflow: ellipsis;
+}
