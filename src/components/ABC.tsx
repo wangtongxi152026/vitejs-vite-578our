@@ -86,24 +86,31 @@ export default defineComponent({
     watch(
       () => radio.value,
       (newVlue, oldValue) => {
-        if (newVlue !== oldValue) onChange(newVlue);
+        if (newVlue !== oldValue) radioChange(newVlue);
       }
     );
     watch(
       () => selectValue.value,
-      (newVlue) => {
-        selectValueChange(newVlue);
+      (newVlue, oldValue) => {
+        if (newVlue.length !== oldValue.length) {
+          selectValueChange(newVlue);
+          return;
+        }
+        for (let index = 0; index < newVlue.length; index++) {
+          const element = newVlue[index];
+          if (element !== oldValue[index]) {
+            selectValueChange(newVlue);
+            return;
+          }
+        }
       }
     );
-    const onChange = async (v: string) => {
-      radio.value = v;
+    const radioChange = async (v: string) => {
       let result = v === "大师" ? await getMaster() : await 获取资金面(v);
       tableData.list = getData(result);
     };
     const selectValueChange = async (array: string[]) => {
-      console.log(array);
       tableData.loading = true;
-      selectValue.value = array;
       tableData.list = [];
       for (let index = 0; index < array.length; index++) {
         const v = array[index];
