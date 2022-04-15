@@ -1,84 +1,16 @@
-import { reactive, ref, defineComponent, onMounted } from "vue";
-import styles from "./a.module.css";
-import { getDetail, getMaster, 获取资金面 } from "../api";
-import { Item, GUpiaoItem } from "../types";
-import { bubbleSort, getData, quchong } from "../utils";
+/** @format */
+
+import { reactive, ref, defineComponent, onMounted } from 'vue';
+import styles from './a.module.css';
+import { getDetail, getMaster, 获取资金面 } from '../api';
+import { columns, columns1 } from '../const';
+import { Item, GUpiaoItem } from '../types';
+import { bubbleSort, getData, quchong } from '../utils';
+import Text from './Text';
 export default defineComponent({
   setup(props) {
-    // 只有点击时执行
-    // const count = ref(999);
-
-    const columns = [
-      {
-        title: "#",
-        width: "60",
-        dataIndex: "key",
-      },
-      {
-        title: "名称",
-        width: "200",
-        dataIndex: "name",
-      },
-      {
-        title: "年化收益",
-        width: "115",
-        slotName: "annualizedYield",
-        filterable: {
-          filters: [
-            {
-              text: "> 40%",
-              value: 40,
-            },
-            {
-              text: "> 50%",
-              value: 50,
-            },
-          ],
-          filter: (value: number, record: Item) => {
-            console.log(record.annualizedYield, value);
-            return record.annualizedYield > value;
-          },
-          // multiple: true,
-        },
-
-        sortable: {
-          sortDirections: ["ascend", "descend"],
-        },
-      },
-      {
-        title: "累计收益",
-        width: "110",
-        slotName: "profitAndList",
-        sortable: {
-          sortDirections: ["ascend", "descend"],
-        },
-      },
-      {
-        title: "最大回撤",
-        width: "110",
-        slotName: "drawnDown",
-        sortable: {
-          sortDirections: ["ascend", "descend"],
-        },
-      },
-
-      {
-        title: "特点",
-        width: "180",
-        slotName: "tags",
-      },
-      {
-        title: "参数",
-        slotName: "query",
-      },
-      {
-        title: "描述",
-        dataIndex: "desc",
-      },
-    ];
-
-    const radio = ref("资金面");
-    const selectValue = ref(["资金面"]);
+    const radio = ref('资金面');
+    const selectValue = ref(['资金面']);
 
     const tableData = reactive<{
       list: Item[];
@@ -102,10 +34,10 @@ export default defineComponent({
     const renderTags = ({ record }: { record: Item }) => {
       return (
         <>
-          <a-tag size="small" color="purple">
+          <a-tag size='small' color='purple'>
             {record.labels1}
           </a-tag>
-          <a-tag size="small" style={{ "margin-left": "8px" }} color="red">
+          <a-tag size='small' style={{ 'margin-left': '8px' }} color='red'>
             {record.labels2}
           </a-tag>
         </>
@@ -115,12 +47,12 @@ export default defineComponent({
     const sorterchange = (dataIndex: string, direction: string) => {
       tableData.loading = true;
       console.log(dataIndex, direction, tableData.list);
-      if (dataIndex === "__arco_data_index_2") {
-        tableData.list = bubbleSort(tableData.list, "annualizedYield", direction);
-      } else if (dataIndex === "__arco_data_index_3") {
-        tableData.list = bubbleSort(tableData.list, "profitAndList", direction);
-      } else if (dataIndex === "__arco_data_index_4") {
-        tableData.list = bubbleSort(tableData.list, "drawnDown", direction);
+      if (dataIndex === '__arco_data_index_2') {
+        tableData.list = bubbleSort(tableData.list, 'annualizedYield', direction);
+      } else if (dataIndex === '__arco_data_index_3') {
+        tableData.list = bubbleSort(tableData.list, 'profitAndList', direction);
+      } else if (dataIndex === '__arco_data_index_4') {
+        tableData.list = bubbleSort(tableData.list, 'drawnDown', direction);
       }
       tableData.loading = false;
     };
@@ -128,12 +60,12 @@ export default defineComponent({
     const renderAnnualizedYield = ({ record }: { record: Item }, key: keyof Item) => {
       return (
         <>
-          {key !== "drawnDown" ? (
-            <a-tag size="large" color="purple">
-              <span class={styles.title}>{record[key] + "%"}</span>
+          {key !== 'drawnDown' ? (
+            <a-tag size='large' color='purple'>
+              <span class={styles.title}>{record[key] + '%'}</span>
             </a-tag>
           ) : (
-            record[key] + "%"
+            record[key] + '%'
           )}
         </>
       );
@@ -141,7 +73,7 @@ export default defineComponent({
     const renderGUpicoTags = ({ record }: { record: GUpiaoItem }) => {
       return record.type.map((tag) => {
         return (
-          <a-tag key={record.code} color="purple">
+          <a-tag key={record.code} color='purple'>
             {tag}
           </a-tag>
         );
@@ -154,7 +86,7 @@ export default defineComponent({
     };
     const onChange = async (v: string) => {
       radio.value = v;
-      let result = v === "大师" ? await getMaster() : await 获取资金面(v);
+      let result = v === '大师' ? await getMaster() : await 获取资金面(v);
       tableData.list = getData(result);
     };
     const selectValueChange = async (array: string[]) => {
@@ -181,13 +113,13 @@ export default defineComponent({
           let result2 = result1.data.answer[0].txt[0].content.components[0].data;
           let result3 = result2.datas.map((item: any) => {
             let keys = Object.keys(item);
-            let 收盘价 = "";
+            let 收盘价 = '';
             if (item.最新价) {
               收盘价 = item.最新价;
             } else {
               for (let index = 0; index < keys.length; index++) {
                 const key = keys[index];
-                if (key.includes("收盘价") && key.length < 20) {
+                if (key.includes('收盘价') && key.length < 20) {
                   收盘价 = item[key];
                 }
               }
@@ -197,7 +129,7 @@ export default defineComponent({
               code: item.code,
               type: tableData.list[i].name,
               收盘价: parseFloat(收盘价),
-              涨跌幅: item.最新涨跌幅 + "%",
+              涨跌幅: item.最新涨跌幅 + '%',
               上市板块: item.上市板块,
             };
           });
@@ -216,57 +148,15 @@ export default defineComponent({
     const handleOk = () => {
       tableData.visible = false;
     };
-    const columns1 = [
-      {
-        title: "重复次数",
-        width: "120",
-        dataIndex: "num",
-        sortable: {
-          sortDirections: ["ascend", "descend"],
-        },
-      },
-      {
-        title: "股票代码",
-        width: "200",
-        dataIndex: "code",
-      },
-      {
-        title: "股票简称",
-        width: "200",
-        dataIndex: "股票简称",
-      },
-      {
-        title: "收盘价",
-        width: "200",
-        sortable: {
-          sortDirections: ["ascend", "descend"],
-        },
-        dataIndex: "收盘价",
-      },
-      {
-        title: "涨跌幅",
-        width: "200",
-        dataIndex: "涨跌幅",
-      },
-      {
-        title: "上市板块",
-        width: "200",
-        dataIndex: "上市板块",
-      },
-      {
-        title: "type",
-        width: "200",
-        slotName: "type",
-      },
-    ];
+
     const renderquery = ({ record }: { record: Item }) => {
       return (
+        // <Text value={record.query}></Text>
         <a-popover
           v-slots={{
             default: () => <a-button>Hover Me</a-button>,
             content: () => <div class={styles.query}>{record?.query}</div>,
-          }}
-        ></a-popover>
+          }}></a-popover>
       );
     };
     return () => {
@@ -274,7 +164,7 @@ export default defineComponent({
         <>
           <div style={styles.box}>
             <div style={styles.header}>
-              <a-drawer width="fit-content" vModel:visible={tableData.visible} onOk={handleOk} onCancel={handleCancel}>
+              <a-drawer width='fit-content' vModel:visible={tableData.visible} onOk={handleOk} onCancel={handleCancel}>
                 <a-table
                   stripe
                   loading={tableData.gupiaoLoading}
@@ -286,12 +176,12 @@ export default defineComponent({
                 />
               </a-drawer>
 
-              <a-radio-group type="button" onChange={onChange} defaultValue="资金面" value={radio}>
-                <a-radio value="资金面">资金面</a-radio>
-                <a-radio value="技术面">技术面</a-radio>
-                <a-radio value="消息面">消息面</a-radio>
-                <a-radio value="基本面">基本面</a-radio>
-                <a-radio value="大师">大师</a-radio>
+              <a-radio-group type='button' onChange={onChange} defaultValue='资金面' value={radio}>
+                <a-radio value='资金面'>资金面</a-radio>
+                <a-radio value='技术面'>技术面</a-radio>
+                <a-radio value='消息面'>消息面</a-radio>
+                <a-radio value='基本面'>基本面</a-radio>
+                <a-radio value='大师'>大师</a-radio>
               </a-radio-group>
               <div>
                 <div>
@@ -301,11 +191,10 @@ export default defineComponent({
                 <a-select
                   onChange={selectValueChange}
                   value={selectValue}
-                  default-value={["资金面"]}
-                  style={{ width: "600px" }}
-                  placeholder="Please select ..."
-                  multiple
-                >
+                  default-value={['资金面']}
+                  style={{ width: '600px' }}
+                  placeholder='Please select ...'
+                  multiple>
                   <a-option>资金面</a-option>
                   <a-option>技术面</a-option>
                   <a-option>消息面</a-option>
@@ -322,15 +211,15 @@ export default defineComponent({
                 columns={columns}
                 data={tableData.list}
                 row-selection={{
-                  type: "checkbox",
+                  type: 'checkbox',
                   showCheckedAll: true,
                 }}
                 v-slots={{
                   tags: renderTags,
                   annualizedYield: ({ record }: { record: Item }) =>
-                    renderAnnualizedYield({ record }, "annualizedYield"),
-                  profitAndList: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, "profitAndList"),
-                  drawnDown: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, "drawnDown"),
+                    renderAnnualizedYield({ record }, 'annualizedYield'),
+                  profitAndList: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, 'profitAndList'),
+                  drawnDown: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, 'drawnDown'),
                   query: ({ record }: { record: Item }) => renderquery({ record }),
                 }}
                 onSorterChange={sorterchange}
