@@ -12,17 +12,12 @@
     "esModuleInterop": true,
     // 在.tsx文件里反对JSX
     "jsx": "preserve",
-    "lib": ["esnext", "dom"]
+    "lib": ["esnext", "dom"],
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
   },
   // include 须要蕴含tsx
-  "include": [
-    "src/*",
-    "src/**/*.vue",
-    "src/**/*.tsx",
-    "src/**/*.jsx",
-    "src/**/*.ts",
-    "src/**/*.js"
-  ],
+  "include": ["src/*", "src/**/*.vue", "src/**/*.tsx", "src/**/*.jsx", "src/**/*.ts", "src/**/*.js"],
 
   "references": [{ "path": "./tsconfig.node.json" }]
 }

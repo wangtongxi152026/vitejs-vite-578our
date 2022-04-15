@@ -1,16 +1,20 @@
 .title {
   color: rgb(233, 48, 48);
   font-size: 20px;
-  line-height: 24px;
-  height: 24px;
   font-weight: 500;
 }
 .tableBox {
   padding: 0 50px;
 }
 .header {
-  position: fixed;
+  position: sticky;
   top: 0;
+  z-index: 1;
+  background: white;
+  display: grid;
+  padding: 24px;
+  grid-template-columns: auto auto auto 3fr;
+  grid-column-gap: 12px;
 }
 .box {
   width: 100%;
@@ -31,4 +35,7 @@
   overflow: hidden;
   /* 文字溢出显示用省略号。  */
   text-overflow: ellipsis;
+}
+.tag {
+  margin-top: 4px;
 }

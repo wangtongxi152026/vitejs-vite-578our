@@ -1,16 +1,16 @@
 /** @format */
 
-import { reactive, ref, defineComponent, onMounted } from 'vue';
-import styles from './a.module.css';
-import { getDetail, getMaster, 获取资金面 } from '../api';
-import { columns, columns1 } from '../const';
-import { Item, GUpiaoItem } from '../types';
-import { bubbleSort, getData, quchong } from '../utils';
-import Text from './Text';
+import { reactive, ref, defineComponent, onMounted, watch } from "vue";
+import styles from "./a.module.css";
+import { getDetail, getMaster, 获取资金面 } from "../api";
+import { columns, columns1, mTypes } from "../const";
+import { Item, GUpiaoItem } from "../types";
+import { bubbleSort, getData, quchong } from "../utils";
+// import Text from './Text';
 export default defineComponent({
   setup(props) {
-    const radio = ref('资金面');
-    const selectValue = ref(['资金面']);
+    const radio = ref("资金面");
+    const selectValue = ref(["资金面"]);
 
     const tableData = reactive<{
       list: Item[];
@@ -28,15 +28,15 @@ export default defineComponent({
       guPiaoList: [],
     });
     onMounted(() => {
-      reset();
+      init();
     });
     const renderTags = ({ record }: { record: Item }) => {
       return (
         <>
-          <a-tag size='small' color='purple'>
+          <a-tag size="small" color="purple">
             {record.labels1}
           </a-tag>
-          <a-tag size='small' style={{ 'margin-left': '8px' }} color='red'>
+          <a-tag size="small" style={{ "margin-left": "8px" }} color="red">
             {record.labels2}
           </a-tag>
         </>
@@ -46,12 +46,12 @@ export default defineComponent({
     const sorterchange = (dataIndex: string, direction: string) => {
       tableData.loading = true;
       console.log(dataIndex, direction, tableData.list);
-      if (dataIndex === '__arco_data_index_2') {
-        tableData.list = bubbleSort(tableData.list, 'annualizedYield', direction);
-      } else if (dataIndex === '__arco_data_index_3') {
-        tableData.list = bubbleSort(tableData.list, 'profitAndList', direction);
-      } else if (dataIndex === '__arco_data_index_4') {
-        tableData.list = bubbleSort(tableData.list, 'drawnDown', direction);
+      if (dataIndex === "__arco_data_index_2") {
+        tableData.list = bubbleSort(tableData.list, "annualizedYield", direction);
+      } else if (dataIndex === "__arco_data_index_3") {
+        tableData.list = bubbleSort(tableData.list, "profitAndList", direction);
+      } else if (dataIndex === "__arco_data_index_4") {
+        tableData.list = bubbleSort(tableData.list, "drawnDown", direction);
       }
       tableData.loading = false;
     };
@@ -59,20 +59,20 @@ export default defineComponent({
     const renderAnnualizedYield = ({ record }: { record: Item }, key: keyof Item) => {
       return (
         <>
-          {key !== 'drawnDown' ? (
-            <a-tag size='large' color='purple'>
-              <span class={styles.title}>{record[key] + '%'}</span>
+          {key !== "drawnDown" ? (
+            <a-tag size="large" color="purple">
+              <span class={styles.title}>{record[key] + "%"}</span>
             </a-tag>
           ) : (
-            record[key] + '%'
+            record[key] + "%"
           )}
         </>
       );
     };
     const renderGUpicoTags = ({ record }: { record: GUpiaoItem }) => {
-      return record.type.map((tag) => {
+      return record.type.map((tag, idx) => {
         return (
-          <a-tag key={record.code} color='purple'>
+          <a-tag class={styles.tag} key={record.code + idx} color="purple">
             {tag}
           </a-tag>
         );
@@ -83,9 +83,21 @@ export default defineComponent({
       console.log({ rowKeys });
       tableData.selectRowData = rowKeys;
     };
+    watch(
+      () => radio.value,
+      (newVlue, oldValue) => {
+        if (newVlue !== oldValue) onChange(newVlue);
+      }
+    );
+    watch(
+      () => selectValue.value,
+      (newVlue) => {
+        selectValueChange(newVlue);
+      }
+    );
     const onChange = async (v: string) => {
       radio.value = v;
-      let result = v === '大师' ? await getMaster() : await 获取资金面(v);
+      let result = v === "大师" ? await getMaster() : await 获取资金面(v);
       tableData.list = getData(result);
     };
     const selectValueChange = async (array: string[]) => {
@@ -95,7 +107,7 @@ export default defineComponent({
       tableData.list = [];
       for (let index = 0; index < array.length; index++) {
         const v = array[index];
-        let result = await 获取资金面(v);
+        let result = v === "大师" ? await getMaster() : await 获取资金面(v);
         tableData.list = [...getData(result), ...tableData.list];
       }
       tableData.loading = false;
@@ -105,6 +117,7 @@ export default defineComponent({
       try {
         tableData.gupiaoLoading = true;
         tableData.visible = true;
+        tableData.guPiaoList = [];
         let dataList: GUpiaoItem[] = [];
         for (let index = 0; index < tableData.selectRowData.length; index++) {
           const i = tableData.selectRowData[index];
@@ -112,13 +125,13 @@ export default defineComponent({
           let result2 = result1.data.answer[0].txt[0].content.components[0].data;
           let result3 = result2.datas.map((item: any) => {
             let keys = Object.keys(item);
-            let 收盘价 = '';
+            let 收盘价 = "";
             if (item.最新价) {
               收盘价 = item.最新价;
             } else {
               for (let index = 0; index < keys.length; index++) {
                 const key = keys[index];
-                if (key.includes('收盘价') && key.length < 20) {
+                if (key.includes("收盘价") && key.length < 20) {
                   收盘价 = item[key];
                 }
               }
@@ -128,7 +141,7 @@ export default defineComponent({
               code: item.code,
               type: tableData.list[i].name,
               收盘价: parseFloat(收盘价),
-              涨跌幅: item.最新涨跌幅 + '%',
+              涨跌幅: item.最新涨跌幅 + "%",
               上市板块: item.上市板块,
             };
           });
@@ -141,25 +154,31 @@ export default defineComponent({
       }
       tableData.gupiaoLoading = false;
     };
-    const handleCancel = () => {
-      tableData.visible = false;
-    };
+
     const handleOk = () => {
       tableData.visible = false;
     };
 
-    const renderquery = ({ record }: { record: Item }) => {
+    const renderquery = ({ record }: { record: Item }, key: keyof Item) => {
       return (
         <a-popover
           v-slots={{
             default: () => <a-button>Hover Me</a-button>,
-            content: () => <div class={styles.query}>{record?.query}</div>,
-          }}></a-popover>
+            content: () => <div class={styles.query}>{record[key]}</div>,
+          }}
+        ></a-popover>
       );
     };
 
     const reset = async () => {
+      radio.value = "资金面";
+      selectValue.value = ["资金面"];
+    };
+
+    const init = async () => {
       try {
+        radio.value = "资金面";
+        selectValue.value = ["资金面"];
         let result = await 获取资金面(radio.value);
         tableData.list = getData(result);
       } catch (error) {
@@ -171,48 +190,44 @@ export default defineComponent({
       return (
         <>
           <div style={styles.box}>
-            <div style={styles.header}>
-              <div>
-                <a-button onClick={reset}>重置</a-button>
-              </div>
-              <a-drawer width='fit-content' vModel:visible={tableData.visible} onOk={handleOk} onCancel={handleCancel}>
-                <a-table
-                  stripe
-                  loading={tableData.gupiaoLoading}
-                  columns={columns1}
-                  v-slots={{ type: renderGUpicoTags }}
-                  data={tableData.guPiaoList}
-                  onSorterChange={sorterchange}
-                  pagination={false}
-                />
-              </a-drawer>
-
-              <a-radio-group type='button' onChange={onChange} defaultValue='资金面' value={radio}>
-                <a-radio value='资金面'>资金面</a-radio>
-                <a-radio value='技术面'>技术面</a-radio>
-                <a-radio value='消息面'>消息面</a-radio>
-                <a-radio value='基本面'>基本面</a-radio>
-                <a-radio value='大师'>大师</a-radio>
+            <a-drawer width="fit-content" vModel:visible={tableData.visible} onOk={handleOk}>
+              <a-table
+                stripe
+                loading={tableData.gupiaoLoading}
+                columns={columns1}
+                v-slots={{ type: renderGUpicoTags }}
+                data={tableData.guPiaoList}
+                onSorterChange={sorterchange}
+                pagination={false}
+              />
+            </a-drawer>
+            <div class={styles.header}>
+              <a-button onClick={reset}>重置</a-button>
+              <a-radio-group type="button" defaultValue="资金面" v-model:modelValue={radio.value}>
+                {mTypes.map((item) => {
+                  return (
+                    <a-radio key={item} value={item}>
+                      {item}
+                    </a-radio>
+                  );
+                })}
               </a-radio-group>
-              <div>
-                <div>
-                  <a-button onClick={handleClick}>查看选中股票</a-button>
-                </div>
-
-                <a-select
-                  onChange={selectValueChange}
-                  value={selectValue}
-                  default-value={['资金面']}
-                  style={{ width: '600px' }}
-                  placeholder='Please select ...'
-                  multiple>
-                  <a-option>资金面</a-option>
-                  <a-option>技术面</a-option>
-                  <a-option>消息面</a-option>
-                  <a-option>基本面</a-option>
-                  <a-option>大师</a-option>
-                </a-select>
-              </div>
+              <a-button onClick={handleClick}>查看选中股票</a-button>
+              <a-select
+                v-model:modelValue={selectValue.value}
+                default-value={["资金面"]}
+                style={{ width: "500px" }}
+                placeholder="Please select ..."
+                multiple
+              >
+                {mTypes.map((item) => {
+                  return (
+                    <a-option key={item} value={item}>
+                      {item}
+                    </a-option>
+                  );
+                })}
+              </a-select>
             </div>
 
             <div class={styles.tableBox}>
@@ -222,16 +237,17 @@ export default defineComponent({
                 columns={columns}
                 data={tableData.list}
                 row-selection={{
-                  type: 'checkbox',
+                  type: "checkbox",
                   showCheckedAll: true,
                 }}
                 v-slots={{
                   tags: renderTags,
                   annualizedYield: ({ record }: { record: Item }) =>
-                    renderAnnualizedYield({ record }, 'annualizedYield'),
-                  profitAndList: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, 'profitAndList'),
-                  drawnDown: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, 'drawnDown'),
-                  query: ({ record }: { record: Item }) => renderquery({ record }),
+                    renderAnnualizedYield({ record }, "annualizedYield"),
+                  profitAndList: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, "profitAndList"),
+                  drawnDown: ({ record }: { record: Item }) => renderAnnualizedYield({ record }, "drawnDown"),
+                  query: ({ record }: { record: Item }) => renderquery({ record }, "query"),
+                  desc: ({ record }: { record: Item }) => renderquery({ record }, "desc"),
                 }}
                 onSorterChange={sorterchange}
                 onSelectionChange={selectionChange}
