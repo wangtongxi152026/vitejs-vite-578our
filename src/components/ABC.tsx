@@ -27,9 +27,8 @@ export default defineComponent({
       selectRowData: [],
       guPiaoList: [],
     });
-    onMounted(async () => {
-      let result = await 获取资金面(radio.value);
-      tableData.list = getData(result);
+    onMounted(() => {
+      reset();
     });
     const renderTags = ({ record }: { record: Item }) => {
       return (
@@ -151,7 +150,6 @@ export default defineComponent({
 
     const renderquery = ({ record }: { record: Item }) => {
       return (
-        // <Text value={record.query}></Text>
         <a-popover
           v-slots={{
             default: () => <a-button>Hover Me</a-button>,
@@ -159,11 +157,24 @@ export default defineComponent({
           }}></a-popover>
       );
     };
+
+    const reset = async () => {
+      try {
+        let result = await 获取资金面(radio.value);
+        tableData.list = getData(result);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     return () => {
       return (
         <>
           <div style={styles.box}>
             <div style={styles.header}>
+              <div>
+                <a-button onClick={reset}>重置</a-button>
+              </div>
               <a-drawer width='fit-content' vModel:visible={tableData.visible} onOk={handleOk} onCancel={handleCancel}>
                 <a-table
                   stripe
