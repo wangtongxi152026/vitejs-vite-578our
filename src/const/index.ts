@@ -4,7 +4,7 @@ export const columns = [
   {
     title: "#",
     width: "60",
-    dataIndex: "key",
+    dataIndex: "num",
   },
   {
     title: "名称",
@@ -79,17 +79,17 @@ export const columns1 = [
   },
   {
     title: "股票代码",
-    width: "200",
+    width: "100",
     dataIndex: "code",
   },
   {
     title: "股票简称",
-    width: "200",
+    width: "150",
     dataIndex: "股票简称",
   },
   {
     title: "收盘价",
-    width: "200",
+    width: "100",
     sortable: {
       sortDirections: ["ascend", "descend"],
     },
@@ -97,16 +97,16 @@ export const columns1 = [
   },
   {
     title: "涨跌幅",
-    width: "200",
+    width: "100",
     dataIndex: "涨跌幅",
   },
   {
     title: "上市板块",
-    width: "200",
+    width: "100",
     dataIndex: "上市板块",
   },
   {
-    title: "type",
+    title: "分类",
     width: "200",
     slotName: "type",
   },

@@ -21,11 +21,17 @@ export const getData = (data: any) => {
     (item: any) => parseFloat(item.annualizedYield) > 5 && parseFloat(item.profitAndList) > 5
   );
   return 年收益率大于0.map((item: any, index: any) => {
+    let annualizedYield = parseFloat(item.annualizedYield);
+    let profitAndList = parseFloat(item.profitAndList);
     return {
-      key: index + 1,
+      num: index + 1,
+      key: JSON.stringify({
+        name: "年:" + annualizedYield + "%" + "　" + "总:" + item.profitAndList + "　" + item.name,
+        query: item.query,
+      }),
       name: item.name,
-      annualizedYield: parseFloat(item.annualizedYield),
-      profitAndList: parseFloat(item.profitAndList),
+      annualizedYield,
+      profitAndList,
       drawnDown: parseFloat(item.drawnDown),
       labels2: item.labels2,
       labels1: item.labels1,

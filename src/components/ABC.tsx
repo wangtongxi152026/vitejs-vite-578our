@@ -1,6 +1,6 @@
 /** @format */
 
-import { reactive, ref, defineComponent, onMounted, watch } from "vue";
+import { reactive, ref, defineComponent, onMounted, watch, computed } from "vue";
 import styles from "./a.module.css";
 import { getDetail, getMaster, 获取资金面 } from "../api";
 import { columns, columns1, mTypes } from "../const";
@@ -16,7 +16,7 @@ export default defineComponent({
       list: Item[];
       loading: boolean;
       gupiaoLoading: boolean;
-      selectRowData: number[];
+      selectRowData: string[];
       visible: boolean;
       guPiaoList: GUpiaoItem[];
     }>({
@@ -79,9 +79,9 @@ export default defineComponent({
       });
     };
 
-    const selectionChange = (rowKeys: number[]) => {
-      console.log({ rowKeys });
+    const selectionChange = (rowKeys: string[]) => {
       tableData.selectRowData = rowKeys;
+      console.log(tableData.selectRowData);
     };
     watch(
       () => radio.value,
@@ -89,6 +89,7 @@ export default defineComponent({
         if (newVlue !== oldValue) radioChange(newVlue);
       }
     );
+
     watch(
       () => selectValue.value,
       (newVlue, oldValue) => {
@@ -112,11 +113,13 @@ export default defineComponent({
     const selectValueChange = async (array: string[]) => {
       tableData.loading = true;
       tableData.list = [];
+      let temp: any = [];
       for (let index = 0; index < array.length; index++) {
         const v = array[index];
         let result = v === "大师" ? await getMaster() : await 获取资金面(v);
-        tableData.list = [...getData(result), ...tableData.list];
+        temp = [...getData(result), ...temp];
       }
+      tableData.list = temp;
       tableData.loading = false;
     };
 
@@ -127,8 +130,8 @@ export default defineComponent({
         tableData.guPiaoList = [];
         let dataList: GUpiaoItem[] = [];
         for (let index = 0; index < tableData.selectRowData.length; index++) {
-          const i = tableData.selectRowData[index];
-          let result1 = await getDetail(tableData.list[i].query);
+          const obj = JSON.parse(tableData.selectRowData[index]);
+          let result1 = await getDetail(obj.query);
           let result2 = result1.data.answer[0].txt[0].content.components[0].data;
           let result3 = result2.datas.map((item: any) => {
             let keys = Object.keys(item);
@@ -146,7 +149,7 @@ export default defineComponent({
             return {
               股票简称: item.股票简称,
               code: item.code,
-              type: tableData.list[i].name,
+              type: obj.name,
               收盘价: parseFloat(收盘价),
               涨跌幅: item.最新涨跌幅 + "%",
               上市板块: item.上市板块,
@@ -192,7 +195,9 @@ export default defineComponent({
         console.log(error);
       }
     };
-
+    const change = (data: any, extra: any) => {
+      console.log("data change", { data, extra });
+    };
     return () => {
       return (
         <>
@@ -219,7 +224,9 @@ export default defineComponent({
                   );
                 })}
               </a-radio-group>
-              <a-button onClick={handleClick}>查看选中股票</a-button>
+              <a-button disabled={tableData.selectRowData.length === 0} onClick={handleClick}>
+                查看选中股票
+              </a-button>
               <a-select
                 v-model:modelValue={selectValue.value}
                 default-value={["资金面"]}
@@ -256,6 +263,7 @@ export default defineComponent({
                   query: ({ record }: { record: Item }) => renderquery({ record }, "query"),
                   desc: ({ record }: { record: Item }) => renderquery({ record }, "desc"),
                 }}
+                onChange={change}
                 onSorterChange={sorterchange}
                 onSelectionChange={selectionChange}
                 pagination={false}
